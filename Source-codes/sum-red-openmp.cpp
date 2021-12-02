@@ -1,0 +1,46 @@
+/*
+Sum of array implementation in OpenMP. Takes no of threads as first argument and array input size as second arg.
+Trivial initialisation of arrays
+Run as:
+g++ -fopenmp -Wall name.cpp
+./a.out t N 
+Use gcc-9.2
+*/
+#include <iostream>
+#include <cstring>
+#include <iomanip>
+#include <omp.h>
+
+using namespace std;
+
+
+int main(int argc, char const *argv[])
+{
+    if(argc < 3)
+    {
+        cout<<"Enter as arg1: thread count, arg2: array size"<<endl;
+        exit(0);
+    }  
+    int no_threads = atoi(argv[1]);
+    int N = atoi(argv[2]);
+    int *a = new int[N];    
+    for(int i=0;i<N;i++){ 
+        a[i] = i;
+    }
+    int sums = 0;
+    double start; 
+    double end; 
+    start = omp_get_wtime(); 
+    #pragma omp parallel num_threads(no_threads)
+    {
+        #pragma omp for reduction(+:sums) schedule(static)
+        for(int i=0;i<N;i++){
+            sums += a[i];
+        }
+    }
+    end = omp_get_wtime(); 
+    printf("Work took %f seconds\n\n", end - start);
+    cout<<sums<<endl;
+
+    return 0;
+}
